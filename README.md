@@ -39,7 +39,7 @@
 2. Делаем постройку образов Docker
    
    ```sh
-   docker compose build`
+   docker compose build
    ```
 
 3. Поднимаем контейнеры
