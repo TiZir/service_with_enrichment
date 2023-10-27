@@ -49,13 +49,15 @@ func (us *UserRepository) GetUserById(ID int) (User, error) {
 	var user User
 	data, ok := us.cache.Load(ID)
 	if ok {
+		log.Println("------------ch------------")
 		user, ok = data.(User)
 		if !ok {
 			log.Printf("Error type assertion from cash: %v\n", user)
 			return User{}, fmt.Errorf("Error type assertion from cash: %v\n", user)
 		}
 	} else {
-		result := us.db.Find(user, ID)
+		log.Println("------------bd------------")
+		result := us.db.Find(&user, ID)
 		if result.Error != nil {
 			log.Println("User not found")
 			return User{}, fmt.Errorf("User not found")
@@ -154,53 +156,24 @@ func (us *UserRepository) CreateUser(user User) (User, error) {
 
 func (us *UserRepository) UpdateUser(user User) (User, error) {
 	var result *gorm.DB
-	if user.Age != 0 && user.Gender != "" && user.Nationality != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic,
-			"age": user.Age, "gender": user.Gender, "nationality": user.Nationality,
-		})
-	} else if user.Age != 0 && user.Gender != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic,
-			"age": user.Age, "gender": user.Gender,
-		})
 
-	} else if user.Age != 0 && user.Nationality != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic,
-			"age": user.Age, "nationality": user.Nationality,
-		})
+	log.Println(user) //
 
-	} else if user.Gender != "" && user.Nationality != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic,
-			"gender": user.Gender, "nationality": user.Nationality,
-		})
-	} else if user.Age != 0 {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic, "age": user.Age,
-		})
-	} else if user.Gender != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic, "gender": user.Gender,
-		})
-	} else if user.Nationality != "" {
-		result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
-			"name": user.Name, "surname": user.Surname, "patronymic": user.Patronymic, "nationality": user.Nationality,
-		})
-	}
+	result = us.db.Model(&User{}).Where("id = ?", user.ID).Updates(user)
 	if result.Error != nil {
 		log.Printf("Error updating user: %v", result.Error)
 		return User{}, fmt.Errorf("Error updating user: %v", result.Error)
 	}
 
+	us.cache.Delete(user.ID)
 	updateUser, err := us.GetUserById(user.ID)
 	if err != nil {
 		log.Printf("Error get user for update in cache %v", err)
 		return User{}, fmt.Errorf("Error get user for update in cache %v", err)
 	}
 	us.cache.Store(user.ID, updateUser)
-	return user, nil
+
+	return updateUser, nil
 }
 
 func (us *UserRepository) DeleteUser(userID int) (User, error) {

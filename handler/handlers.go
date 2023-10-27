@@ -200,14 +200,14 @@ func UpdateUsersHandler(c echo.Context, r *background.UserRepository) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	user := new(background.User)
-	if err := c.Bind(user); err != nil {
+	var user background.User
+	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Обновление данных
 	user.ID = id
-	updateUser, err := r.UpdateUser(*user)
+	updateUser, err := r.UpdateUser(user)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
