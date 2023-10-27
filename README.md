@@ -119,7 +119,7 @@
   
 Запрос PUT: http://localhost:9090/users/{id}
 
-    Тело:
+   Тело:
 
   ```JSON
     {
