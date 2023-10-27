@@ -117,7 +117,7 @@
   
 * Метод для изменения сущности
   
-Запрос DELETE: http://localhost:9090/users/{id}
+Запрос PUT: http://localhost:9090/users/{id}
 
     Тело:
 
