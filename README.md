@@ -54,9 +54,9 @@
 #### Основное задание
 * Метод добавления новых людей
   
-  Запрос POST: http://localhost:9090/users
+Запрос POST: http://localhost:9090/users
 
-    Тело:
+   Тело:
 
   ```JSON
     {
